@@ -55,6 +55,12 @@
 		<dependency org="antlr" name="antlr" rev="2.7.7" conf="prod->default" />
 		<dependency org="com.h2database" name="h2" rev="1.3.176" conf="prod->default" />
 		<dependency org="c3p0" name="c3p0" rev="0.9.1.2" conf="prod->default" />
+		
+		<dependency org="io.prometheus" name="simpleclient" rev="0.0.11"/>
+		<dependency org="io.prometheus" name="simpleclient_common" rev="0.0.11"/>
+		<dependency org="io.prometheus" name="simpleclient_hotspot" rev="0.0.11"/>
+		<dependency org="io.prometheus" name="simpleclient_servlet" rev="0.0.11"/>
+		<dependency org="io.prometheus" name="simpleclient_pushgateway" rev="0.0.11"/>
 
 		<!-- Test -->
 		<!-- Test NG should be on the build path via the Eclipse plug-in -->

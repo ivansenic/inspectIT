@@ -9,6 +9,7 @@ import info.novatec.inspectit.storage.StorageData;
 import info.novatec.inspectit.storage.nio.ByteBufferProvider;
 import info.novatec.inspectit.storage.nio.write.WritingChannelManager;
 import info.novatec.inspectit.storage.recording.RecordingState;
+import io.prometheus.client.Gauge;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
@@ -38,6 +39,11 @@ public class HealthStatus {
 	/** The logger of this class. */
 	@Log
 	Logger log;
+
+	/**
+	 * {@link Gauge} for the buffer occupancy.
+	 */
+	private Gauge bufferOccupancyGauge;
 
 	/**
 	 * For the visualization of the memory and load average, a graphical visualization is put into
@@ -366,6 +372,8 @@ public class HealthStatus {
 			log.info(str);
 		}
 		logGraphicalBufferOccupancy(buffer.getOccupancyPercentage());
+
+		bufferOccupancyGauge.set(buffer.getOccupancyPercentage());
 	}
 
 	/**
@@ -480,6 +488,7 @@ public class HealthStatus {
 	 */
 	@PostConstruct
 	public void postConstruct() throws Exception {
+		bufferOccupancyGauge = Gauge.build().name("inspectit_cmr_buffer_occupancy").help("% of buffer full").register();
 		startUpCheck();
 		if (beansAvailable) {
 			if (log.isInfoEnabled()) {

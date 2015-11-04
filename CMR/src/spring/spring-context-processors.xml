@@ -4,6 +4,10 @@
 	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
 	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
 
+	<!-- Prometheus -->
+	<bean id="httpMetricProcessor" class="info.novatec.inspectit.cmr.processor.prometheus.HttpMetricProcessor" />
+	<bean id="cpuMetricProcessor" class="info.novatec.inspectit.cmr.processor.prometheus.CpuMetricProcessor" />
+
 	<bean id="cacheIdGeneratorCmrProcessor" class="info.novatec.inspectit.cmr.processor.impl.CacheIdGeneratorCmrProcessor" />
 	<bean id="bufferInserterCmrProcessor" class="info.novatec.inspectit.cmr.processor.impl.BufferInserterCmrProcessor" />
 	<bean id="exceptionMessageCmrProcessor" class="info.novatec.inspectit.cmr.processor.impl.ExceptionMessageCmrProcessor" />
@@ -30,6 +34,7 @@
 				<ref bean="timerDataChartingCmrProcessor" />
 				<ref bean="indexerCmrProcessor" />
 				<ref bean="sqlExclusiveTimeCmrProcessor" />
+				<ref bean="httpMetricProcessor" />
 			</util:list>
 		</constructor-arg>
 	</bean>
@@ -44,6 +49,8 @@
 		<ref bean="sqlExclusiveTimeCmrProcessor" />
 		<ref bean="timerDataChartingCmrProcessor" />
 		<ref bean="invocationModifierCmrProcessor" />
+		<ref bean="httpMetricProcessor" />
+		<ref bean="cpuMetricProcessor" />
 		<ref bean="recorderCmrProcessor" /> <!-- Must be last when all are processed -->
 	</util:list>
 	

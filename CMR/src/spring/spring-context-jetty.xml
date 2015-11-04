@@ -276,6 +276,20 @@
 		<property name="pathSpec" value="/rest/*"/>
 	</bean>
 	<!-- END -->
+	
+	<!-- Prometheus Servlet -->
+	<bean id="prometheusServlet" class="io.prometheus.client.exporter.MetricsServlet" />
+	
+	<bean id="prometheusServletHolder" class="org.mortbay.jetty.servlet.ServletHolder">
+		<property name="name" value="prometheusServletExporter" />
+		<property name="servlet" ref="prometheusServlet" />
+	</bean>
+
+	<bean id="prometheusServletMapping" class="org.mortbay.jetty.servlet.ServletMapping">
+		<property name="servletName" value="prometheusServletExporter" />
+		<property name="pathSpec" value="/prometheus_metrics/*"/>
+	</bean>
+	<!-- END -->
 
 	<bean id="servletHandler" class="org.mortbay.jetty.servlet.ServletHandler">
 		<property name="servlets">
@@ -292,6 +306,7 @@
 				<ref bean="defaultServletHolder" />
 				<ref bean="uploadServletHolder" />
 				<ref bean="springDispatcherServletHolder" />
+				<ref bean="prometheusServletHolder" />
 			</list>
 		</property>
 		<property name="servletMappings">
@@ -308,6 +323,7 @@
 				<ref bean="defaultServletMapping" />
 				<ref bean="uploadServletMapping" />
 				<ref bean="springDispatcherServletMapping" />
+				<ref bean="prometheusServletMapping" />
 			</list>
 		</property>
 		<property name="filters">
