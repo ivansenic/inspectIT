@@ -188,4 +188,15 @@ public class ExtendedByteBufferOutputStream extends ByteBufferOutputStream {
 		this.close();
 		super.finalize();
 	}
+
+	/**
+	 * Sets {@link #byteBufferProvider}.
+	 * 
+	 * @param byteBufferProvider
+	 *            New value for {@link #byteBufferProvider}
+	 */
+	public void setByteBufferProvider(ByteBufferProvider byteBufferProvider) {
+		this.byteBufferProvider = byteBufferProvider;
+	}
+
 }
