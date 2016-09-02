@@ -4,7 +4,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -18,6 +17,7 @@ import java.util.Map;
 
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -27,6 +27,7 @@ import rocks.inspectit.agent.java.config.impl.RegisteredSensorConfig;
 import rocks.inspectit.agent.java.core.ICoreService;
 import rocks.inspectit.agent.java.core.IPlatformManager;
 import rocks.inspectit.agent.java.util.StringConstraint;
+import rocks.inspectit.shared.all.communication.DefaultData;
 import rocks.inspectit.shared.all.communication.ExceptionEvent;
 import rocks.inspectit.shared.all.communication.data.ExceptionSensorData;
 
@@ -114,17 +115,17 @@ public class ExceptionSensorHookTest extends AbstractLogSupport {
 		exceptionSensorData.setExceptionEvent(ExceptionEvent.CREATED);
 		exceptionHook.afterConstructor(coreService, constructorId, sensorTypeId, exceptionObject, parameters, registeredSensorConfig);
 		verify(platformManager, times(1)).getPlatformId();
-		verify(coreService, times(1)).addExceptionSensorData(eq(sensorTypeId), eq(exceptionSensorData.getThrowableIdentityHashCode()), argThat(new ExceptionSensorDataVerifier(exceptionSensorData)));
+		verify(coreService, times(1)).addDefaultData(argThat(new ExceptionSensorDataVerifier(exceptionSensorData)));
 
 		exceptionSensorData.setExceptionEvent(ExceptionEvent.PASSED);
 		exceptionHook.dispatchOnThrowInBody(coreService, methodId, sensorTypeId, object, exceptionObject, parameters, registeredSensorConfig);
 		verify(platformManager, times(2)).getPlatformId();
-		verify(coreService, times(1)).addExceptionSensorData(eq(sensorTypeId), eq(exceptionSensorData.getThrowableIdentityHashCode()), argThat(new ExceptionSensorDataVerifier(exceptionSensorData)));
+		verify(coreService, times(1)).addDefaultData(argThat(new ExceptionSensorDataVerifier(exceptionSensorData)));
 
 		exceptionSensorData.setExceptionEvent(ExceptionEvent.HANDLED);
 		exceptionHook.dispatchBeforeCatchBody(coreService, methodIdTwo, sensorTypeId, exceptionObject, registeredSensorConfig);
 		verify(platformManager, times(3)).getPlatformId();
-		verify(coreService, times(1)).addExceptionSensorData(eq(sensorTypeId), eq(exceptionSensorData.getThrowableIdentityHashCode()), argThat(new ExceptionSensorDataVerifier(exceptionSensorData)));
+		verify(coreService, times(1)).addDefaultData(argThat(new ExceptionSensorDataVerifier(exceptionSensorData)));
 
 		verifyNoMoreInteractions(platformManager, coreService);
 	}
@@ -189,7 +190,7 @@ public class ExceptionSensorHookTest extends AbstractLogSupport {
 		exceptionSensorData.setExceptionEvent(ExceptionEvent.CREATED);
 		exceptionHook.afterConstructor(coreService, constructorId, sensorTypeId, exceptionObject, parameters, registeredSensorConfig);
 		verify(platformManager, times(1)).getPlatformId();
-		verify(coreService, times(1)).addExceptionSensorData(eq(sensorTypeId), eq(exceptionSensorData.getThrowableIdentityHashCode()), argThat(new ExceptionSensorDataVerifier(exceptionSensorData)));
+		verify(coreService, times(1)).addDefaultData(argThat(new ExceptionSensorDataVerifier(exceptionSensorData)));
 		assertThat(exceptionSensorData.getCause(), is(equalTo(cause.getClass().getName())));
 
 		// resetting the cause to null as we need the cause only in the first
@@ -199,12 +200,12 @@ public class ExceptionSensorHookTest extends AbstractLogSupport {
 		exceptionSensorData.setExceptionEvent(ExceptionEvent.PASSED);
 		exceptionHook.dispatchOnThrowInBody(coreService, methodId, sensorTypeId, object, exceptionObject, parameters, registeredSensorConfig);
 		verify(platformManager, times(2)).getPlatformId();
-		verify(coreService, times(1)).addExceptionSensorData(eq(sensorTypeId), eq(exceptionSensorData.getThrowableIdentityHashCode()), argThat(new ExceptionSensorDataVerifier(exceptionSensorData)));
+		verify(coreService, times(1)).addDefaultData(argThat(new ExceptionSensorDataVerifier(exceptionSensorData)));
 
 		exceptionSensorData.setExceptionEvent(ExceptionEvent.HANDLED);
 		exceptionHook.dispatchBeforeCatchBody(coreService, methodIdTwo, sensorTypeId, exceptionObject, registeredSensorConfig);
 		verify(platformManager, times(3)).getPlatformId();
-		verify(coreService, times(1)).addExceptionSensorData(eq(sensorTypeId), eq(exceptionSensorData.getThrowableIdentityHashCode()), argThat(new ExceptionSensorDataVerifier(exceptionSensorData)));
+		verify(coreService, times(1)).addDefaultData(argThat(new ExceptionSensorDataVerifier(exceptionSensorData)));
 
 		verifyNoMoreInteractions(platformManager, coreService);
 	}
@@ -235,7 +236,7 @@ public class ExceptionSensorHookTest extends AbstractLogSupport {
 
 		exceptionHook.afterConstructor(coreService, constructorId, sensorTypeId, exceptionObject, parameters, registeredSensorConfig);
 		verify(platformManager, times(1)).getPlatformId();
-		verify(coreService, times(1)).addExceptionSensorData(eq(sensorTypeId), eq(exceptionSensorData.getThrowableIdentityHashCode()), argThat(new ExceptionSensorDataVerifier(exceptionSensorData)));
+		verify(coreService, times(1)).addDefaultData(argThat(new ExceptionSensorDataVerifier(exceptionSensorData)));
 
 		verifyNoMoreInteractions(platformManager);
 	}

@@ -52,8 +52,8 @@ import rocks.inspectit.shared.all.instrumentation.config.impl.JmxAttributeDescri
 import rocks.inspectit.shared.all.instrumentation.config.impl.JmxSensorTypeConfig;
 import rocks.inspectit.shared.all.testbase.TestBase;
 
-/**
- * All JMX sensor tests disabled until we support JXM via the Configuration interface.
+/***
+ * All JMX sensor tests disabled until we support JXM via the Configuration interface.**
  *
  * @author Ivan Senic
  *
@@ -292,7 +292,7 @@ public class JmxSensorTest extends TestBase {
 			verifyNoMoreInteractions(mBeanServer);
 
 			ArgumentCaptor<JmxSensorValueData> valueCaptor = ArgumentCaptor.forClass(JmxSensorValueData.class);
-			verify(coreService).addJmxSensorValueData(eq(sensorType), eq(testObjectName), eq(testAttributeName), valueCaptor.capture());
+			verify(coreService).addDefaultData(valueCaptor.capture());
 
 			assertThat(valueCaptor.getValue().getPlatformIdent(), is(equalTo(platformIdent)));
 			assertThat(valueCaptor.getValue().getSensorTypeIdent(), is(equalTo(sensorType)));
@@ -432,7 +432,7 @@ public class JmxSensorTest extends TestBase {
 			verifyNoMoreInteractions(mBeanServer);
 
 			ArgumentCaptor<JmxSensorValueData> valueCaptor = ArgumentCaptor.forClass(JmxSensorValueData.class);
-			verify(coreService).addJmxSensorValueData(eq(sensorType), eq(testObjectName), eq(testAttributeName), valueCaptor.capture());
+			verify(coreService).addDefaultData(valueCaptor.capture());
 
 			assertThat(valueCaptor.getValue().getPlatformIdent(), is(equalTo(platformIdent)));
 			assertThat(valueCaptor.getValue().getSensorTypeIdent(), is(equalTo(sensorType)));
@@ -484,7 +484,7 @@ public class JmxSensorTest extends TestBase {
 			verifyNoMoreInteractions(mBeanServer);
 
 			ArgumentCaptor<JmxSensorValueData> valueCaptor = ArgumentCaptor.forClass(JmxSensorValueData.class);
-			verify(coreService).addJmxSensorValueData(eq(sensorType), eq(testObjectName), eq(testAttributeName), valueCaptor.capture());
+			verify(coreService).addDefaultData(valueCaptor.capture());
 
 			assertThat(valueCaptor.getValue().getPlatformIdent(), is(equalTo(platformIdent)));
 			assertThat(valueCaptor.getValue().getSensorTypeIdent(), is(equalTo(sensorType)));
@@ -536,7 +536,7 @@ public class JmxSensorTest extends TestBase {
 			verifyNoMoreInteractions(mBeanServer);
 
 			ArgumentCaptor<JmxSensorValueData> valueCaptor = ArgumentCaptor.forClass(JmxSensorValueData.class);
-			verify(coreService).addJmxSensorValueData(eq(sensorType), eq(testObjectName), eq(testAttributeName), valueCaptor.capture());
+			verify(coreService).addDefaultData(valueCaptor.capture());
 
 			assertThat(valueCaptor.getValue().getPlatformIdent(), is(equalTo(platformIdent)));
 			assertThat(valueCaptor.getValue().getSensorTypeIdent(), is(equalTo(sensorType)));
@@ -547,7 +547,7 @@ public class JmxSensorTest extends TestBase {
 		@DataProvider(name = "throwableProvider")
 		public Object[][] getThrowables() {
 			return new Object[][] { { AttributeNotFoundException.class }, { InstanceNotFoundException.class }, { MBeanException.class }, { ReflectionException.class },
-					{ RuntimeMBeanException.class } };
+				{ RuntimeMBeanException.class } };
 		}
 
 	}
@@ -619,7 +619,7 @@ public class JmxSensorTest extends TestBase {
 			verifyNoMoreInteractions(mBeanServer);
 
 			ArgumentCaptor<JmxSensorValueData> valueCaptor = ArgumentCaptor.forClass(JmxSensorValueData.class);
-			verify(coreService).addJmxSensorValueData(eq(sensorType), eq(testObjectName), eq(testAttributeName), valueCaptor.capture());
+			verify(coreService).addDefaultData(valueCaptor.capture());
 
 			assertThat(valueCaptor.getValue().getPlatformIdent(), is(equalTo(platformIdent)));
 			assertThat(valueCaptor.getValue().getSensorTypeIdent(), is(equalTo(sensorType)));
