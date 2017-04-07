@@ -121,10 +121,10 @@ class IndexBufferElementProcessor<E extends DefaultData> extends AbstractBufferE
 							long oldSize = atomicBuffer.indexingTreeSize.get();
 							if (atomicBuffer.indexingTreeSize.compareAndSet(oldSize, newSize)) {
 								atomicBuffer.addToCurrentSize(newSize - oldSize, false);
-								if (atomicBuffer.log.isDebugEnabled()) {
-									atomicBuffer.log.debug("Indexing tree size update duration: " + Converter.nanoToMilliseconds(System.nanoTime() - time));
-									atomicBuffer.log.debug("Indexing tree delta: " + (newSize - oldSize));
-									atomicBuffer.log.debug("Indexing tree new size: " + newSize);
+								if (atomicBuffer.log.isTraceEnabled()) {
+									atomicBuffer.log.trace("Indexing tree size update duration: " + Converter.nanoToMilliseconds(System.nanoTime() - time));
+									atomicBuffer.log.trace("Indexing tree delta: " + (newSize - oldSize));
+									atomicBuffer.log.trace("Indexing tree new size: " + newSize);
 								}
 								break;
 							}

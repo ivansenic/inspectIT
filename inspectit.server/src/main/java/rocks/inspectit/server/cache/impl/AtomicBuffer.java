@@ -3,6 +3,7 @@ package rocks.inspectit.server.cache.impl;
 import java.text.NumberFormat;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -13,6 +14,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,7 @@ import rocks.inspectit.shared.all.cmr.cache.IObjectSizes;
 import rocks.inspectit.shared.all.cmr.property.spring.PropertyUpdate;
 import rocks.inspectit.shared.all.communication.DefaultData;
 import rocks.inspectit.shared.all.spring.logger.Log;
+import rocks.inspectit.shared.all.util.ExecutorServiceUtils;
 import rocks.inspectit.shared.cs.indexing.buffer.IBufferTreeComponent;
 
 /**
@@ -234,7 +237,7 @@ public class AtomicBuffer<E extends DefaultData> implements IBuffer<E> {
 			if (first.compareAndSet(currentlyFirst, element)) {
 
 				// increment number of added elements
-				elementsAdded.incrementAndGet();
+				long added = elementsAdded.incrementAndGet();
 
 				// if currently first is not pointing to marker, it means that we already have
 				// elements in the buffer, so connect elements
@@ -250,6 +253,11 @@ public class AtomicBuffer<E extends DefaultData> implements IBuffer<E> {
 					last.set(element);
 					informAnalyzing = true;
 					informIndexing = true;
+				}
+
+				if (log.isDebugEnabled() && ((added % 10_000) == 0)) {
+					log.debug("---");
+					log.debug(toString());
 				}
 
 				// break from while
@@ -320,7 +328,11 @@ public class AtomicBuffer<E extends DefaultData> implements IBuffer<E> {
 
 				// iterate until size of the eviction fragment is reached
 				while (fragmentSize < evictionFragmentMaxSize) {
-					fragmentSize += newLastElement.getBufferElementSize();
+					long elementSize = newLastElement.getBufferElementSize();
+					if (0 == elementSize) {
+						log.debug("WTF!!! ELEMENT SIZE IS NULL.");
+					}
+					fragmentSize += elementSize;
 					newLastElement.setBufferElementState(BufferElementState.EVICTED);
 					elementsInFragment++;
 					newLastElement = newLastElement.getNextElement();
@@ -329,6 +341,10 @@ public class AtomicBuffer<E extends DefaultData> implements IBuffer<E> {
 					if (emptyBufferElement.equals(newLastElement)) {
 						break;
 					}
+				}
+
+				if ((elementsInFragment % 10) == 0) {
+					log.debug("Evicted " + elementsInFragment + " with total fragment size " + fragmentSize);
 				}
 
 				// change the last element to the right one
@@ -605,6 +621,11 @@ public class AtomicBuffer<E extends DefaultData> implements IBuffer<E> {
 			log.info("|-Indexing tree maintenance on " + NumberFormat.getInstance().format(flagsSetOnBytes) + " bytes added/removed...");
 			log.info("|-Using object expansion rate of " + NumberFormat.getInstance().format(objectSizes.getObjectSecurityExpansionRate() * 100) + "%");
 		}
+	}
+
+	@PreDestroy
+	public void preDestroy() {
+		ExecutorServiceUtils.shutdownExecutor(indexingTreeCleaningExecutorService, 0, TimeUnit.SECONDS);
 	}
 
 	/**

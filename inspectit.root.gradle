@@ -12,6 +12,7 @@ buildscript {
 		jcenter()
 	}
 	dependencies {
+		classpath "com.github.jengelman.gradle.plugins:shadow:1.2.4"
 		classpath "me.champeau.gradle:jmh-gradle-plugin:0.3.1"
 		classpath "org.standardout:bnd-platform:1.4.0"
 	}
@@ -251,6 +252,7 @@ subprojects {
 	apply plugin: 'pmd'
 	apply plugin: 'checkstyle'
 	apply plugin: 'findbugs'
+	apply plugin: 'com.github.johnrengelman.shadow'
 	apply plugin: 'me.champeau.gradle.jmh'
 	apply plugin: 'jacoco'
 	
@@ -383,6 +385,9 @@ subprojects {
 	 * JMH-Perf tests.
 	 */
 	jmhJar {
+		append 'META-INF/spring.handlers'
+		append 'META-INF/spring.schemas'
+		exclude 'LICENSE'
 		doFirst {
 			duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
 		}

@@ -165,14 +165,10 @@ public class Leaf<E extends DefaultData> implements IBufferTreeComponent<E> {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean clean() {
-		List<Long> toClean = new ArrayList<>();
 		CustomWeakReference<E> customWeakReference = (CustomWeakReference<E>) referenceQueue.poll();
 		while (customWeakReference != null) {
-			toClean.add(customWeakReference.getReferentId());
+			map.remove(customWeakReference.getReferentId());
 			customWeakReference = (CustomWeakReference<E>) referenceQueue.poll();
-		}
-		for (Object key : toClean) {
-			map.remove(key);
 		}
 		if (map.isEmpty()) {
 			return true;

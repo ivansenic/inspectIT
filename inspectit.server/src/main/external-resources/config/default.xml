@@ -282,13 +282,13 @@
 			</long-property>
 			<group-property name="Buffer Size" description="Define properties that define the buffer size.">
 				<properties>
-					<percentage-property name="Min Old-space Occupancy" default-value="50" server-restart-required="false" logical-name="buffer.minOldSpaceOccupancy" advanced="true"
+					<percentage-property name="Min Old-space Occupancy" default-value="45" server-restart-required="false" logical-name="buffer.minOldSpaceOccupancy" advanced="true"
 						description="The minimum percentage of the old generation heap space buffer will occupy.">
 						<validators>
 							<isPercentage />
 						</validators>
 					</percentage-property>
-					<percentage-property name="Max Old-space Occupancy" default-value="65" server-restart-required="false" logical-name="buffer.maxOldSpaceOccupancy" advanced="true"
+					<percentage-property name="Max Old-space Occupancy" default-value="50" server-restart-required="false" logical-name="buffer.maxOldSpaceOccupancy" advanced="true"
 						description="The maximum percentage of the old generation heap space buffer will occupy.">
 						<validators>
 							<isPercentage />
