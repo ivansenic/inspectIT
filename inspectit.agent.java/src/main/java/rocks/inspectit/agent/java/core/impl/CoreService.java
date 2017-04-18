@@ -2,7 +2,6 @@ package rocks.inspectit.agent.java.core.impl;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -24,12 +23,9 @@ import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 
-import rocks.inspectit.agent.java.IThreadTransformHelper;
 import rocks.inspectit.agent.java.core.ICoreService;
-import rocks.inspectit.agent.java.core.IPlatformManager;
 import rocks.inspectit.agent.java.sensor.jmx.IJmxSensor;
 import rocks.inspectit.agent.java.sensor.platform.IPlatformSensor;
-import rocks.inspectit.agent.java.util.AgentAwareThread;
 import rocks.inspectit.shared.all.communication.DefaultData;
 import rocks.inspectit.shared.all.communication.SystemSensorData;
 import rocks.inspectit.shared.all.communication.data.eum.AbstractEUMData;
@@ -63,12 +59,6 @@ public class CoreService implements ICoreService {
 	Logger log;
 
 	/**
-	 * Platform manager.
-	 */
-	@Autowired
-	private IPlatformManager platformManager;
-
-	/**
 	 * All platform sensors.
 	 */
 	@Autowired(required = false)
@@ -86,13 +76,6 @@ public class CoreService implements ICoreService {
 	@Autowired
 	@Qualifier("coreServiceExecutorService")
 	private ScheduledExecutorService executorService;
-
-	/**
-	 * {@link IThreadTransformHelper} to use to disable transformations done in the threads started
-	 * by core service.
-	 */
-	@Autowired
-	IThreadTransformHelper threadTransformHelper;
 
 	/**
 	 * Default data handler for the disruptor.
@@ -173,9 +156,6 @@ public class CoreService implements ICoreService {
 
 		// schedule the sensor refresher runnable
 		executorService.schedule(new SensorRefresher(), sensorRefreshTime, TimeUnit.MILLISECONDS);
-
-		// add shutdown hook
-		Runtime.getRuntime().addShutdownHook(new ShutdownHookSender());
 	}
 
 	/**
@@ -195,7 +175,7 @@ public class CoreService implements ICoreService {
 		stopDisruptor();
 
 		// kill executor service
-		shutDownExecutorService(executorService);
+		ExecutorServiceUtils.shutdownExecutor(executorService, 5L, TimeUnit.SECONDS);
 	}
 
 	/**
@@ -225,16 +205,6 @@ public class CoreService implements ICoreService {
 	 */
 	private void stopDisruptor() {
 		disruptor.shutdown();
-	}
-
-	/**
-	 * Correctly shuts down the executor service.
-	 *
-	 * @param executorService
-	 *            Executor service to shut down.
-	 */
-	private void shutDownExecutorService(ExecutorService executorService) {
-		ExecutorServiceUtils.shutdownExecutor(executorService, 5, TimeUnit.SECONDS);
 	}
 
 	/**
@@ -333,37 +303,6 @@ public class CoreService implements ICoreService {
 				// reschedule the runnable
 				executorService.schedule(this, sensorRefreshTime, TimeUnit.MILLISECONDS);
 			}
-		}
-	}
-
-	/**
-	 * Used for the JVM Shutdown. Ensure that all threads are closed correctly and tries to send
-	 * data one last time to prevent data loss.
-	 *
-	 * @author Stefan Siegl
-	 */
-	private class ShutdownHookSender extends AgentAwareThread {
-
-		/**
-		 * Default constructor.
-		 */
-		ShutdownHookSender() {
-			super(threadTransformHelper);
-		}
-
-		@Override
-		public void run() {
-			// call super to perform needed pre-run operations
-			super.run();
-			// Stop the CoreService services, this includes shutdown of the disruptor and sending of
-			// remaining data
-
-			log.info("Shutdown initialized, sending remaining data");
-			CoreService.this.stop();
-
-			// unregister
-			log.info("Unregistering the Agent");
-			platformManager.unregisterPlatform();
 		}
 	}
 
