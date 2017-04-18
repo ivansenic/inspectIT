@@ -150,7 +150,6 @@ public class CoreService implements ICoreService {
 		} catch (InsufficientCapacityException e) {
 			// TODO Meaningful logging
 			log.error("Disruptor Capacity reached. Dropping data...");
-			System.out.println("Disruptor Capacity reached. Dropping data...");
 		}
 	}
 

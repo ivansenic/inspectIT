@@ -274,13 +274,13 @@ public class InvocationSequenceHook implements IMethodHook, IConstructorHook, IC
 				// just need an arbitrary prefix so that this sequence will
 				// never be overwritten in the core service!
 				if (minDurationMap.containsKey(invocationStartId.get())) {
-					checkForSavingOrNot(coreService, methodId, sensorTypeId, rsc, invocationSequenceData, startTime, endTime, duration);
+					checkForSavingOrNot(coreService, rsc, invocationSequenceData, startTime, endTime, duration);
 				} else {
 					// maybe not saved yet in the map
 					if (rsc.getSettings().containsKey("minduration")) {
 						Long minDuration = (Long) rsc.getSettings().get("minduration");
 						minDurationMap.put(invocationStartId.get(), minDuration.doubleValue());
-						checkForSavingOrNot(coreService, methodId, sensorTypeId, rsc, invocationSequenceData, startTime, endTime, duration);
+						checkForSavingOrNot(coreService, rsc, invocationSequenceData, startTime, endTime, duration);
 					} else {
 						invocationSequenceData.setDuration(duration);
 						invocationSequenceData.setStart(startTime);
@@ -429,10 +429,6 @@ public class InvocationSequenceHook implements IMethodHook, IConstructorHook, IC
 	 *
 	 * @param coreService
 	 *            The reference to the core service which holds the data objects etc.
-	 * @param methodId
-	 *            The unique method id.
-	 * @param sensorTypeId
-	 *            The unique sensor type id.
 	 * @param rsc
 	 *            The {@link RegisteredSensorConfig} object which holds all the information of the
 	 *            executed method.
@@ -445,8 +441,7 @@ public class InvocationSequenceHook implements IMethodHook, IConstructorHook, IC
 	 * @param duration
 	 *            The actual duration.
 	 */
-	private void checkForSavingOrNot(ICoreService coreService, long methodId, long sensorTypeId, RegisteredSensorConfig rsc, InvocationSequenceData invocationSequenceData, double startTime, // NOCHK
-			double endTime, double duration) {
+	private void checkForSavingOrNot(ICoreService coreService, RegisteredSensorConfig rsc, InvocationSequenceData invocationSequenceData, double startTime, double endTime, double duration) {
 		double minduration = minDurationMap.get(invocationStartId.get()).doubleValue();
 		if (duration >= minduration) {
 			if (LOG.isDebugEnabled()) {

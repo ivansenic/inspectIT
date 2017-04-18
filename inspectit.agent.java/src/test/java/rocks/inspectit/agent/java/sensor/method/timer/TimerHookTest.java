@@ -160,7 +160,6 @@ public class TimerHookTest extends AbstractLogSupport {
 		timerHook.firstAfterBody(methodId, sensorTypeId, object, parameters, result, false, registeredSensorConfig);
 		timerHook.secondAfterBody(coreService, methodId, sensorTypeId, object, parameters, result, false, registeredSensorConfig);
 
-
 		verify(registeredSensorConfig, times(1)).isPropertyAccess();
 		verify(propertyAccessor, times(1)).getParameterContentData(registeredSensorConfig.getPropertyAccessorList(), object, parameters, result, false);
 		ArgumentCaptor<TimerData> captor = ArgumentCaptor.forClass(TimerData.class);
