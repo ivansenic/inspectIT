@@ -1,9 +1,7 @@
 package rocks.inspectit.server.service;
 
-import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
 
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -47,7 +45,7 @@ public class AgentStorageServiceTest extends AbstractTestNGLogSupport {
 	@BeforeMethod
 	public void init() {
 		MockitoAnnotations.initMocks(this);
-		agentStorageService = new AgentStorageService(new ArrayBlockingQueue<SoftReference<List<? extends DefaultData>>>(1));
+		agentStorageService = new AgentStorageService();
 		agentStorageService.platformIdentDateSaver = agentStatusDataProvider;
 		agentStorageService.cmrManagementService = cmrManagementService;
 		agentStorageService.log = LoggerFactory.getLogger(AgentStorageService.class);
