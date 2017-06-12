@@ -1,6 +1,3 @@
-/**
- *
- */
 package rocks.inspectit.agent.java.core.impl;
 
 import java.util.ArrayList;
@@ -59,7 +56,9 @@ public class DefaultDataHandler implements EventHandler<DefaultDataWrapper> {
 
 		if (endOfBatch) {
 			try {
-				connection.sendDataObjects(defaultDatas);
+				if (connection.isConnected()) {
+					connection.sendDataObjects(defaultDatas);
+				}
 			} catch (ServerUnavailableException serverUnavailableException) {
 				if (serverUnavailableException.isServerTimeout()) {
 					log.warn("Timeout on server when sending actual data. Data might be lost!", serverUnavailableException);
@@ -69,7 +68,6 @@ public class DefaultDataHandler implements EventHandler<DefaultDataWrapper> {
 						log.error("Connection problem appeared, stopping sending actual data!", serverUnavailableException);
 					}
 				}
-
 			} finally {
 				defaultDatas.clear();
 			}

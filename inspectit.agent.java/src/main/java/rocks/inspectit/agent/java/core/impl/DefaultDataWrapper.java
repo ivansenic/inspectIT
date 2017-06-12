@@ -1,6 +1,3 @@
-/**
- *
- */
 package rocks.inspectit.agent.java.core.impl;
 
 import rocks.inspectit.shared.all.communication.DefaultData;

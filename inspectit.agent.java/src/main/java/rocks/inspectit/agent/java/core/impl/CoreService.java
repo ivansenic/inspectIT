@@ -5,13 +5,13 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.DependsOn;
@@ -23,6 +23,8 @@ import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 
+import rocks.inspectit.agent.java.config.IConfigurationStorage;
+import rocks.inspectit.agent.java.config.StorageException;
 import rocks.inspectit.agent.java.core.ICoreService;
 import rocks.inspectit.agent.java.sensor.jmx.IJmxSensor;
 import rocks.inspectit.agent.java.sensor.platform.IPlatformSensor;
@@ -57,6 +59,12 @@ public class CoreService implements ICoreService {
 	 */
 	@Log
 	Logger log;
+
+	/**
+	 * Configuration storage.
+	 */
+	@Autowired
+	IConfigurationStorage configurationStorage;
 
 	/**
 	 * All platform sensors.
@@ -106,11 +114,6 @@ public class CoreService implements ICoreService {
 	private volatile boolean shutdown = false;
 
 	/**
-	 * Counter which is used by collision of data adding.
-	 */
-	private AtomicLong counter = new AtomicLong(0);
-
-	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -142,7 +145,6 @@ public class CoreService implements ICoreService {
 	@Override
 	public void addEUMData(AbstractEUMData eumData) {
 		addDefaultData(eumData);
-
 	}
 
 	/**
@@ -152,7 +154,11 @@ public class CoreService implements ICoreService {
 	@PostConstruct
 	public void start() {
 		// start disruptor
-		startDisruptor();
+		try {
+			startDisruptor();
+		} catch (Exception e) {
+			throw new BeanInitializationException("Can not initialize disruptor.", e);
+		}
 
 		// schedule the sensor refresher runnable
 		executorService.schedule(new SensorRefresher(), sensorRefreshTime, TimeUnit.MILLISECONDS);
@@ -180,14 +186,16 @@ public class CoreService implements ICoreService {
 
 	/**
 	 * Starts the disruptor.
+	 *
+	 * @throws StorageException
+	 *             If buffer size can not be read from configuration.
 	 */
 	@SuppressWarnings("unchecked")
-	private void startDisruptor() {
+	private void startDisruptor() throws StorageException {
 		// Specify the size of the ring buffer, must be power of 2.
-		// TODO read from configuration
-		int bufferSize = 1024;
+		int bufferSize = configurationStorage.getDataBufferSize();
 
-		// TODO factory
+		// TODO factory for threads
 		disruptor = new Disruptor<DefaultDataWrapper>(new DefaultDataFactory(), bufferSize, Executors.defaultThreadFactory(), ProducerType.MULTI, new BlockingWaitStrategy());
 
 		// Connect the handler
@@ -208,25 +216,6 @@ public class CoreService implements ICoreService {
 	}
 
 	/**
-	 * Returns the current refresh time of the platform sensors.
-	 *
-	 * @return The platform sensor refresh time.
-	 */
-	public long getSensorRefreshTime() {
-		return sensorRefreshTime;
-	}
-
-	/**
-	 * Sets the platform sensor refresh time.
-	 *
-	 * @param sensorRefreshTime
-	 *            The platform sensor refresh time to set.
-	 */
-	public void setSensorRefreshTime(long sensorRefreshTime) {
-		this.sensorRefreshTime = sensorRefreshTime;
-	}
-
-	/**
 	 * The SensorRefresher is a {@link Runnable} running in sensorRefreshTime intervals and updates
 	 * the information of the platform and jmx sensor.
 	 *
@@ -235,7 +224,7 @@ public class CoreService implements ICoreService {
 	 * @author Ivan Senic
 	 *
 	 */
-	private class SensorRefresher implements Runnable {
+	class SensorRefresher implements Runnable {
 
 		/**
 		 * Counts the number of iterations from the start. Used to distinguish between reset, gather
@@ -301,6 +290,7 @@ public class CoreService implements ICoreService {
 				}
 			} finally {
 				// reschedule the runnable
+				// this ensures that we only run one sensor refresher task at the time
 				executorService.schedule(this, sensorRefreshTime, TimeUnit.MILLISECONDS);
 			}
 		}

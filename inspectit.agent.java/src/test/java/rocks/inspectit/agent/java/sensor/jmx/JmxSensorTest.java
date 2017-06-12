@@ -52,8 +52,8 @@ import rocks.inspectit.shared.all.instrumentation.config.impl.JmxAttributeDescri
 import rocks.inspectit.shared.all.instrumentation.config.impl.JmxSensorTypeConfig;
 import rocks.inspectit.shared.all.testbase.TestBase;
 
-/***
- * All JMX sensor tests disabled until we support JXM via the Configuration interface.**
+/**
+ * All JMX sensor tests disabled until we support JXM via the Configuration interface.
  *
  * @author Ivan Senic
  *

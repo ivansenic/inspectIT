@@ -34,10 +34,10 @@ public interface ICoreService {
 	void addDefaultData(DefaultData defaultData);
 
 	/**
-	 * Adds a new EUm Record to the value storage to be sent.
+	 * Adds a new end user monitoring record to the value storage to be sent.
 	 *
 	 * @param eumData
-	 *            the data t osend, must have a valid session id and element ID!
+	 *            the data to send, must have a valid session id and element ID!
 	 */
 	void addEUMData(AbstractEUMData eumData);
 

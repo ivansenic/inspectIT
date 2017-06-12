@@ -150,7 +150,7 @@ public class HttpHookTest extends AbstractLogSupport {
 
 		httpHook.secondAfterBody(coreService, methodId, sensorTypeId, servlet, parameters, result, false, registeredSensorConfig);
 
-		Mockito.verify(coreService).addDefaultData(Matchers.argThat(new HttpTimerDataVerifier(data)));
+		verify(coreService).addDefaultData(Matchers.argThat(new HttpTimerDataVerifier(data)));
 		verifyZeroInteractions(result);
 	}
 
@@ -251,7 +251,8 @@ public class HttpHookTest extends AbstractLogSupport {
 
 		httpHook.secondAfterBody(coreService, methodId, sensorTypeId, servlet, parameters, result, false, registeredSensorConfig);
 
-		Mockito.verify(coreService).addDefaultData(Matchers.argThat(new HttpTimerDataVerifier((HttpTimerData) data)));
+		verify(coreService).addDefaultData(Matchers.argThat(new HttpTimerDataVerifier((HttpTimerData) data)));
+		verifyZeroInteractions(result);
 	}
 
 	@Test
@@ -344,7 +345,7 @@ public class HttpHookTest extends AbstractLogSupport {
 		httpHook.firstAfterBody(methodId11, sensorTypeId, servlet, parametersNoHttp, result, false, registeredSensorConfig);
 		httpHook.secondAfterBody(coreService, methodId11, sensorTypeId, servlet, parametersNoHttp, result, false, registeredSensorConfig);
 
-		Mockito.verify(coreService).addDefaultData(Matchers.argThat(new HttpTimerDataVerifier((HttpTimerData) data1)));
+		verify(coreService).addDefaultData(Matchers.argThat(new HttpTimerDataVerifier((HttpTimerData) data1)));
 
 		httpHook.beforeBody(methodId21, sensorTypeId, servlet, parametersHttp, registeredSensorConfig);
 		httpHook.beforeBody(methodId22, sensorTypeId, servlet, parametersNoHttp, registeredSensorConfig);
@@ -355,7 +356,7 @@ public class HttpHookTest extends AbstractLogSupport {
 		httpHook.firstAfterBody(methodId21, sensorTypeId, servlet, parametersHttp, result, false, registeredSensorConfig);
 		httpHook.secondAfterBody(coreService, methodId21, sensorTypeId, servlet, parametersHttp, result, false, registeredSensorConfig);
 
-		Mockito.verify(coreService, times(2)).addDefaultData(Matchers.argThat(new HttpTimerDataVerifier((HttpTimerData) data2)));
+		verify(coreService, times(2)).addDefaultData(Matchers.argThat(new HttpTimerDataVerifier((HttpTimerData) data2)));
 
 		// ensure that there are no exceptions (like "NoSuchElement" which means that before or
 		// after did not push a timer object)
