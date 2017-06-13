@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -92,8 +93,6 @@ public class CoreService implements ICoreService {
 	@Autowired
 	private DefaultDataHandler defaultDataHandler;
 
-	// TODO: confluence:
-	// https://confluence.novatec-gmbh.de/display/~mwa/Aggregation+of+DefaultData%28s%29+on+the+agent
 	/**
 	 * Instance to the {@link Disruptor} where data for sending will be stored.
 	 */
@@ -115,6 +114,11 @@ public class CoreService implements ICoreService {
 	private volatile boolean shutdown = false;
 
 	/**
+	 * Count how much data are we dropping.
+	 */
+	private AtomicLong droppedDataCount = new AtomicLong(0);
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -128,15 +132,20 @@ public class CoreService implements ICoreService {
 			// grab the next sequence, never wait for it to be available so that that we don't block
 			long sequence = ringBuffer.tryNext();
 			try {
-				// Get the entry in the disruptor for the sequence and simply change the reference
+				// get the entry in the disruptor for the sequence and simply change the reference
 				DefaultDataWrapper defaultDataWrapper = ringBuffer.get(sequence);
 				defaultDataWrapper.setDefaultData(defaultData);
 			} finally {
 				ringBuffer.publish(sequence);
 			}
 		} catch (InsufficientCapacityException e) {
-			// TODO Meaningful logging
-			log.error("Disruptor Capacity reached. Dropping data...");
+			// this atomic long is not high contention point as it's not happening always
+			long dropped = droppedDataCount.incrementAndGet();
+
+			// log on first, tenth, hundredth and then on every one thousand elements dropped
+			if (log.isWarnEnabled() && ((dropped == 1) || (dropped == 10) || (dropped == 100) || ((dropped % 1000) == 0))) {
+				log.warn("Sending data buffer (disruptor) capacity reached, monitoring data is dropped. Current count of dropped data is " + dropped + ".");
+			}
 		}
 	}
 

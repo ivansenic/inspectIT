@@ -4,7 +4,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -31,6 +33,7 @@ import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import rocks.inspectit.agent.java.config.IConfigurationStorage;
@@ -71,6 +74,12 @@ public class CoreServiceTest extends TestBase {
 	@Mock
 	List<IJmxSensor> jmxSensors;
 
+	@BeforeMethod
+	public void executorShutdown() throws InterruptedException {
+		// avoid strange log messages in test
+		when(executorService.awaitTermination(anyLong(), Mockito.<TimeUnit> any())).thenReturn(true);
+	}
+
 	public static class AddDefaultData extends CoreServiceTest {
 
 		@Mock
@@ -102,6 +111,31 @@ public class CoreServiceTest extends TestBase {
 			// need to sleep a bit so handler is notified
 			Thread.sleep(100);
 			verifyNoMoreInteractions(defaultDataHandler);
+		}
+
+		@Test
+		public void capacityReached() throws InterruptedException, StorageException {
+			when(log.isWarnEnabled()).thenReturn(true);
+			when(configurationStorage.getDataBufferSize()).thenReturn(2);
+			// slow down the wrapper so we get capacity error
+			doAnswer(new Answer<Void>() {
+				@Override
+				public Void answer(InvocationOnMock invocation) throws Throwable {
+					Thread.sleep(1);
+					return null;
+				}
+			}).when(defaultDataHandler).onEvent(Mockito.<DefaultDataWrapper> any(), anyLong(), anyBoolean());
+			coreService.start();
+
+			coreService.addDefaultData(data);
+			coreService.addDefaultData(data);
+			coreService.addDefaultData(data);
+			coreService.addDefaultData(data);
+
+			// we should log only once
+			verify(log, times(2)).isWarnEnabled();
+			verify(log).warn(anyString());
+			verifyNoMoreInteractions(log);
 		}
 
 		@AfterMethod
