@@ -29,7 +29,7 @@ public class AgentConfig {
 	private boolean classCacheExistsOnCmr;
 
 	/**
-	 * Size of the disruptor buffer for storing the monitoring data.
+	 * Size of the disruptor buffer for storing the monitoring data. Must be power of 2.
 	 */
 	private int dataBufferSize;
 
@@ -126,7 +126,7 @@ public class AgentConfig {
 
 	/**
 	 * Gets {@link #dataBufferSize}.
-	 * 
+	 *
 	 * @return {@link #dataBufferSize}
 	 */
 	public int getDataBufferSize() {
@@ -135,7 +135,7 @@ public class AgentConfig {
 
 	/**
 	 * Sets {@link #dataBufferSize}.
-	 * 
+	 *
 	 * @param dataBufferSize
 	 *            New value for {@link #dataBufferSize}
 	 */
