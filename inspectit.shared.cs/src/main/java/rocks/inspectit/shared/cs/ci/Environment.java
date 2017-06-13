@@ -91,17 +91,17 @@ public class Environment extends AbstractCiData {
 	private boolean classLoadingDelegation = true;
 
 	/**
+	 * The retransformation strategy.
+	 */
+	@XmlElement(name = "retransformation-strategy")
+	private RetransformationStrategy retransformationStrategy = ConfigurationDefaultsFactory.getDefaultRetransformationStrategy();
+
+	/**
 	 * Size of the agent buffer for storing the monitoring data. Default value defined in
 	 * {@link ConfigurationDefaultsFactory#getDefaultDataBufferSize()}.
 	 */
 	@XmlElement(name = "dataBufferSize")
 	private int dataBufferSize = ConfigurationDefaultsFactory.getDefaultDataBufferSize();
-
-	/**
-	 * The retransformation strategy.
-	 */
-	@XmlElement(name = "retransformation-strategy")
-	private RetransformationStrategy retransformationStrategy = ConfigurationDefaultsFactory.getDefaultRetransformationStrategy();
 
 	/**
 	 * Returns the {@link IMethodSensorConfig} for the given {@link IMethodSensorConfig} class.
