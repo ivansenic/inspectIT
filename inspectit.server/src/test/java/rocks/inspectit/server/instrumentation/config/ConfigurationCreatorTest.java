@@ -34,7 +34,6 @@ import rocks.inspectit.shared.all.instrumentation.config.impl.JmxSensorTypeConfi
 import rocks.inspectit.shared.all.instrumentation.config.impl.MethodSensorTypeConfig;
 import rocks.inspectit.shared.all.instrumentation.config.impl.PlatformSensorTypeConfig;
 import rocks.inspectit.shared.all.instrumentation.config.impl.RetransformationStrategy;
-import rocks.inspectit.shared.all.instrumentation.config.impl.StrategyConfig;
 import rocks.inspectit.shared.all.pattern.EqualsMatchPattern;
 import rocks.inspectit.shared.all.pattern.IMatchPattern;
 import rocks.inspectit.shared.all.pattern.WildcardMatchPattern;
@@ -239,38 +238,6 @@ public class ConfigurationCreatorTest extends TestBase {
 			assertThat(excludeClassesPatterns, hasSize(2));
 			assertThat(excludeClassesPatterns, hasItem(new EqualsMatchPattern(er1.getClassName())));
 			assertThat(excludeClassesPatterns, hasItem(new WildcardMatchPattern(er2.getClassName())));
-		}
-
-		@Test
-		public void sendingStrategy() throws Exception {
-			String className = "className";
-			Map<String, String> settings = Collections.singletonMap("key", "value");
-			IStrategyConfig config = mock(IStrategyConfig.class);
-			when(config.getClassName()).thenReturn(className);
-			when(config.getSettings()).thenReturn(settings);
-			when(environment.getSendingStrategyConfig()).thenReturn(config);
-
-			AgentConfig agentConfiguration = creator.environmentToConfiguration(environment, 0);
-
-			StrategyConfig strategyConfig = agentConfiguration.getSendingStrategyConfig();
-			assertThat(strategyConfig.getClazzName(), is(className));
-			assertThat(strategyConfig.getSettings(), is(settings));
-		}
-
-		@Test
-		public void bufferStrategy() throws Exception {
-			String className = "className";
-			Map<String, String> settings = Collections.singletonMap("key", "value");
-			IStrategyConfig config = mock(IStrategyConfig.class);
-			when(config.getClassName()).thenReturn(className);
-			when(config.getSettings()).thenReturn(settings);
-			when(environment.getBufferStrategyConfig()).thenReturn(config);
-
-			AgentConfig agentConfiguration = creator.environmentToConfiguration(environment, 0);
-
-			StrategyConfig strategyConfig = agentConfiguration.getBufferStrategyConfig();
-			assertThat(strategyConfig.getClazzName(), is(className));
-			assertThat(strategyConfig.getSettings(), is(settings));
 		}
 
 		@Test

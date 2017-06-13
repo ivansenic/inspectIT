@@ -16,7 +16,6 @@ import rocks.inspectit.server.util.Converter;
 import rocks.inspectit.shared.all.cmr.service.IAgentStorageService;
 import rocks.inspectit.shared.all.communication.DefaultData;
 import rocks.inspectit.shared.all.spring.logger.Log;
-import rocks.inspectit.shared.cs.cmr.service.ICmrManagementService;
 
 /**
  * The default implementation of the {@link IAgentStorageService} interface. Uses an implementation
@@ -43,18 +42,6 @@ public class AgentStorageService implements IAgentStorageService {
 	 */
 	@Autowired
 	AgentStatusDataProvider platformIdentDateSaver;
-
-	/**
-	 * {@link CmrManagementService}.
-	 */
-	@Autowired
-	ICmrManagementService cmrManagementService;
-
-	/**
-	 * Default constructor.
-	 */
-	public AgentStorageService() {
-	}
 
 	/**
 	 * {@inheritDoc}

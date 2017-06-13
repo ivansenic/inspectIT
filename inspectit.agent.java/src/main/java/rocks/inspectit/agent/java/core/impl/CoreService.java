@@ -2,8 +2,8 @@ package rocks.inspectit.agent.java.core.impl;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.InsufficientCapacityException;
 import com.lmax.disruptor.RingBuffer;
@@ -195,8 +196,9 @@ public class CoreService implements ICoreService {
 		// Specify the size of the ring buffer, must be power of 2.
 		int bufferSize = configurationStorage.getDataBufferSize();
 
-		// TODO factory for threads
-		disruptor = new Disruptor<DefaultDataWrapper>(new DefaultDataFactory(), bufferSize, Executors.defaultThreadFactory(), ProducerType.MULTI, new BlockingWaitStrategy());
+		// define thread factory and initialize disruptor
+		ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("inspectit-disruptor-thread-%d").setDaemon(true).build();
+		disruptor = new Disruptor<DefaultDataWrapper>(new DefaultDataFactory(), bufferSize, threadFactory, ProducerType.MULTI, new BlockingWaitStrategy());
 
 		// Connect the handler
 		disruptor.handleEventsWith(defaultDataHandler);
