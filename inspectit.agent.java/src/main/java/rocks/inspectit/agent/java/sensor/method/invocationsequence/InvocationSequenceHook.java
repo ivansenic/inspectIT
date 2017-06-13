@@ -542,7 +542,7 @@ public class InvocationSequenceHook implements IMethodHook, IConstructorHook, IC
 			realCoreService.addDefaultData(defaultData);
 		}
 
-		saveDataObject(defaultData.finalizeData());
+		saveDataObject(defaultData);
 	}
 
 	// //////////////////////////////////////////////
