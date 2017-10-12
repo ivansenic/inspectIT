@@ -144,7 +144,11 @@ public class CauseStructure {
 		/**
 		 * The source type are non database / HTTP calls.
 		 */
-		TIMERDATA
+		TIMERDATA,
+		/**
+		 * The source type are general invocation.
+		 */
+		INVOCATION
 	}
 
 }

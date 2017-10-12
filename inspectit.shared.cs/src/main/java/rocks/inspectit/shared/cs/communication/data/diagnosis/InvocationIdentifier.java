@@ -52,11 +52,13 @@ public class InvocationIdentifier {
 			timerData = invocationSequenceData.getSqlStatementData();
 		} else if (InvocationSequenceDataHelper.hasTimerData(invocationSequenceData)) {
 			timerData = invocationSequenceData.getTimerData();
-		} else {
-			throw new IllegalStateException("Timer data unknown.");
 		}
 
-		this.diagnosisTimerData = new DiagnosisTimerData(timerData);
+		if (null != timerData) {
+			this.diagnosisTimerData = new DiagnosisTimerData(timerData);
+		} else {
+			this.diagnosisTimerData = new DiagnosisTimerData(invocationSequenceData);
+		}
 	}
 
 	/**

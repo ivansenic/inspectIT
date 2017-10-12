@@ -63,7 +63,7 @@ public final class DiagnosisDataAggregator {
 		} else if (InvocationSequenceDataHelper.hasTimerData(invocationSequenceData)) {
 			return new AggregatedDiagnosisData(SourceType.TIMERDATA, invocationSequenceData, getAggregationKey(invocationSequenceData));
 		} else {
-			throw new IllegalArgumentException("No timer data available!");
+			return new AggregatedDiagnosisData(SourceType.INVOCATION, invocationSequenceData, getAggregationKey(invocationSequenceData));
 		}
 	}
 

@@ -1,13 +1,16 @@
 package rocks.inspectit.shared.cs.communication.data.diagnosis;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import rocks.inspectit.shared.all.communication.data.HttpTimerData;
+import rocks.inspectit.shared.all.communication.data.InvocationSequenceData;
 import rocks.inspectit.shared.all.communication.data.SqlStatementData;
 import rocks.inspectit.shared.all.communication.data.TimerData;
+import rocks.inspectit.shared.cs.communication.data.InvocationSequenceDataHelper;
 
 /**
  * This class represents a Diagnosis TimerData Object with the relevant timer information needed for
@@ -43,27 +46,63 @@ public class DiagnosisTimerData {
 	protected Map<MetaDataType, String> metaData = new HashMap<MetaDataType, String>();
 
 	/**
-	 * Default constructor.
+	 * Constructor that accepts {@link TimerData} as source.
 	 *
 	 * @param timerData
 	 *            the timerData that is taken into account
 	 */
 	public DiagnosisTimerData(final TimerData timerData) {
-		if (timerData == null) {
-			throw new IllegalArgumentException("TimerData cannot be null!");
-		}
+		this(timerData.getDuration(), timerData.getCpuDuration(), timerData.getExclusiveDuration(), getMetaData(timerData));
+	}
 
-		this.duration = timerData.getDuration();
-		this.cpuDuration = timerData.getCpuDuration();
-		this.exclusiveDuration = timerData.getExclusiveDuration();
+	/**
+	 * Constructor that accepts {@link InvocationSequenceData} as source.
+	 * <p>
+	 * As we don't have CPU duration in the invocation we are setting it to a {@link Double#NaN}.
+	 *
+	 * @param invocationSequenceData
+	 *            the invocationSequenceData that is taken into account
+	 */
+	public DiagnosisTimerData(final InvocationSequenceData invocationSequenceData) {
+		this(InvocationSequenceDataHelper.calculateDuration(invocationSequenceData), Double.NaN,
+				InvocationSequenceDataHelper.calculateDuration(invocationSequenceData) - InvocationSequenceDataHelper.computeNestedDuration(invocationSequenceData), Collections.emptyMap());
+	}
 
+	/**
+	 * Constructor that sets all fields.
+	 *
+	 * @param cpuDuration
+	 *            The CPU duration.
+	 * @param duration
+	 *            The complete duration.
+	 * @param exclusiveDuration
+	 *            The exclusive duration.
+	 * @param metaData
+	 *            Additional metaData of type {@link MetaDataType} can be stored.
+	 */
+	private DiagnosisTimerData(double duration, double cpuDuration, double exclusiveDuration, Map<MetaDataType, String> metaData) {
+		this.cpuDuration = cpuDuration;
+		this.duration = duration;
+		this.exclusiveDuration = exclusiveDuration;
+		this.metaData = metaData;
+	}
+
+	/**
+	 * Resolves meta-data for the timer data.
+	 *
+	 * @param timerData
+	 *            the timerData that is taken into account
+	 * @return Map of meta-data.
+	 */
+	private static Map<MetaDataType, String> getMetaData(TimerData timerData) {
 		if (timerData instanceof SqlStatementData) {
 			SqlStatementData sqlStatementData = (SqlStatementData) timerData;
-			this.metaData.put(MetaDataType.SQL, sqlStatementData.getSql());
+			return Collections.singletonMap(MetaDataType.SQL, sqlStatementData.getSql());
 		} else if (timerData instanceof HttpTimerData) {
 			HttpTimerData httpTimerData = (HttpTimerData) timerData;
-			this.metaData.put(MetaDataType.URI, httpTimerData.getHttpInfo().getUri());
+			return Collections.singletonMap(MetaDataType.URI, httpTimerData.getHttpInfo().getUri());
 		}
+		return Collections.emptyMap();
 	}
 
 	/**

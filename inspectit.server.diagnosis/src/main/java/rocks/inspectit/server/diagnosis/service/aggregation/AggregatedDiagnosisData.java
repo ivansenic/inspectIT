@@ -66,24 +66,27 @@ public class AggregatedDiagnosisData {
 	 *            InvocationSequenceData to be added to the aggregation
 	 */
 	public void aggregate(InvocationSequenceData invocationSequenceData) {
+		// resolve if we can use timer data
 		TimerData timerData = null;
-		switch (sourceType) {
-		case DATABASE:
+		if (SourceType.DATABASE.equals(sourceType)) {
 			timerData = invocationSequenceData.getSqlStatementData();
-			break;
-		case HTTP:
-		case TIMERDATA:
+		} else if (SourceType.HTTP.equals(sourceType) || SourceType.TIMERDATA.equals(sourceType)) {
 			timerData = invocationSequenceData.getTimerData();
-			break;
-		default:
-			throw new IllegalStateException("Source type unknown.");
 		}
 
-		// aggregate the timer data
+		// aggregate based on the data we have
 		if (aggregatedDiagnosisTimerData == null) {
-			aggregatedDiagnosisTimerData = new AggregatedDiagnosisTimerData(timerData);
+			if (null != timerData) {
+				aggregatedDiagnosisTimerData = new AggregatedDiagnosisTimerData(timerData);
+			} else {
+				aggregatedDiagnosisTimerData = new AggregatedDiagnosisTimerData(invocationSequenceData);
+			}
 		} else {
-			aggregatedDiagnosisTimerData.aggregate(timerData);
+			if (null != timerData) {
+				aggregatedDiagnosisTimerData.aggregate(timerData);
+			} else {
+				aggregatedDiagnosisTimerData.aggregate(invocationSequenceData);
+			}
 		}
 
 		// save involved invocation
